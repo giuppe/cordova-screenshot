@@ -12,7 +12,10 @@
 #import <Cordova/CDVPlugin.h>
 
 @interface Screenshot : CDVPlugin {
+    NSString* callbackId;
 }
+
+@property (nonatomic, copy) NSString* callbackId;
 
 //- (void)saveScreenshot:(NSArray*)arguments withDict:(NSDictionary*)options;
 - (void)saveScreenshot:(CDVInvokedUrlCommand*)command;

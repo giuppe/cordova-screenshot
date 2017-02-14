@@ -29,6 +29,7 @@
 
 - (void)saveScreenshot:(CDVInvokedUrlCommand*)command
 {
+    self.callbackId = command.callbackId;
 	NSString *filename = [command.arguments objectAtIndex:2];
 	NSNumber *quality = [command.arguments objectAtIndex:1];
 
@@ -39,6 +40,8 @@
 	NSData *imageData = UIImageJPEGRepresentation(image,[quality floatValue]);
 	[imageData writeToFile:jpgPath atomically:NO];
 
+    UIImageWriteToSavedPhotosAlbum(image, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
+
 	CDVPluginResult* pluginResult = nil;
 	NSDictionary *jsonObj = [ [NSDictionary alloc]
 		initWithObjectsAndKeys :
@@ -47,9 +50,9 @@
 		nil
 	];
 
-	pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:jsonObj];
-	NSString* callbackId = command.callbackId;
-	[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+//	pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:jsonObj];
+//
+//	[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }
 
 - (void) getScreenshotAsURI:(CDVInvokedUrlCommand*)command
@@ -64,4 +67,24 @@
 	CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:jsonObj];
 	[self.commandDelegate sendPluginResult:pluginResult callbackId:[command callbackId]];
 }
+
+- (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo
+{
+    // Was there an error?
+    if (error != NULL)
+    {
+        // Show error message...
+        NSLog(@"ERROR: %@",error);
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus: CDVCommandStatus_ERROR messageAsString:error.description];
+        [self.commandDelegate sendPluginResult:result callbackId:self.callbackId];
+    }
+    else  // No errors
+    {
+        // Show message image successfully saved
+        NSLog(@"IMAGE SAVED!");
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus: CDVCommandStatus_OK messageAsString:@"Image saved"];
+        [self.commandDelegate sendPluginResult:result callbackId:self.callbackId];
+    }
+}
+
 @end
