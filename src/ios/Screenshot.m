@@ -14,6 +14,7 @@
 
 @implementation Screenshot
 
+@synthesize callbackId;
 @synthesize webView;
 
 - (UIImage *)getScreenshot
